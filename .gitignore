@@ -1,0 +1,4 @@
+node_modules/
+test/
+bench/
+CORPUS-NOTES.md

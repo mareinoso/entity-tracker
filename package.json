@@ -1,0 +1,10 @@
+{
+  "name": "entity-tracker",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./index.js",
+  "license": "Noncommercial",
+  "scripts": {
+    "test": "node test/run.js"
+  }
+}
