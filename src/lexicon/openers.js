@@ -20,7 +20,7 @@ const WORDS = `
 help take look go come stop wait tell ask give get find keep let make put try turn watch leave
 bring call follow move open close pull push run send show start stay talk think use check grab
 head listen walk attack defend search enter exit climb jump throw drop pick read sit stand sleep
-wake eat drink buy sell pay fight hide wear examine inspect approach greet reach touch say
+wake eat drink buy sell pay fight hide wear examine inspect approach greet reach touch say name
 
 carrying holding standing looking watching moving walking running taking going getting feeling
 seeing hearing thinking trying turning entering leaving reaching keeping letting making putting

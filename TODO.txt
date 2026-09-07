@@ -1,0 +1,39 @@
+TODO — entity-tracker
+
+
+## Medial possessive: "X's Y" where X and Y are two different entities
+
+The clitic trim (`trimSpan` rule 4, src/admit.js) only handles a clitic in LEADING position,
+where it is a copula frame ("Name's Brack", "It's Brack"). A clitic in the MIDDLE of a span is
+a different thing and is still kept whole:
+
+    Zhukan's Nodachi                  a person, and the weapon they own
+    Commander Skywalker's Taun-Taun   a person, and the animal they ride
+    Lieutenant Vax's CO               a person, and a DIFFERENT person
+    Rangers' Captain Vex              plural possessive — no `s` after the apostrophe at all,
+                                      so `CLITIC` cannot even see it
+
+All four are one entity today. They should be two, or one plus a discarded modifier.
+
+Not the same problem as rule 4, and deliberately out of its scope: rule 4 fires on evidence that
+the head is a copula frame (never opens a span mid-sentence). These heads DO open spans
+mid-sentence — they are real names — so the same test cannot separate them.
+
+Counter-cases the fix must not break, all real, all from the corpus:
+
+    Baldur's Gate (12)      Lord's Alliance (3)      Wayfarer's Suite (2)
+    Tower's Dale (1)        Southern Border's Grand Market (1)
+
+These are lexicalised: the possessive is part of the name. 19 occurrences against 7 for the split
+class, so a blanket split loses more than it wins.
+
+Ideas, none measured yet:
+  - `headTypeOf` on the tail: "Gate"/"Alliance"/"Market" are typed head nouns, "Nodachi"/"CO"
+    are not. Covers about half; misses "King's Landing", "Hell's Kitchen", "Rosa's Cantina".
+  - Does the left half also stand alone elsewhere in the story? "Zhukan" does, "Baldur" does not.
+    Story-wide, so it belongs in `lexis`, not in `spans.js`.
+  - Broaden `CLITIC` to plural possessive (`['\u2019]$`) once there is a rule to hand it to.
+
+Related, already fixed by rule 4 as a side effect (see git log): the stray leading title word in
+"Lord Lord's Alliance" / "King King's Landing", which still reproduces when the possessive name
+is first seen MID-sentence.

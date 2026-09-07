@@ -20,6 +20,8 @@ import { speaksAt } from './read/speech.js'
 import { isNoise, normalizeName, trimLeadingStopwords, looksDescriptive, analyseName } from './names.js'
 import { headTypeOf } from './profile/type.js'
 
+// A clitic ends a clause; a name never carries one internally.
+const CLITIC = /n['’]t$|['’](?:s|ll|d|re|ve|m|t)$/i
 const DEAR_POOR = /\b(?:dear|poor)\s+$/i
 const SAY_NEAR = new RegExp(`\b(?:${SAY}|${SAY_AMBIG}|${SAY_LOUD})\b`, 'i')
 
@@ -68,7 +70,7 @@ function factsAt(text, offset, surface, quotes) {
  * Trim discourse pollution off a raw span, using both this paragraph's own attestations and the
  * story's accumulated ones. Returns the surviving words, or `null` when nothing survives.
  *
- * Three rules, all evidence-driven, none of them a verb list:
+ * Four rules, all evidence-driven, none of them a verb list:
  *   1. trailing  — "Kade Rourke Enters": drop a final word that never ENDS a span whose capital is
  *      unexplained, provided it also looks like pollution (`isOpener`) and what remains is attested.
  *      Requiring positive junk-evidence is what protects a one-off surname ("Corren Vantage")
@@ -79,6 +81,10 @@ function factsAt(text, offset, surface, quotes) {
  *      when what remains DOES, and the dropped word behaves like ordinary vocabulary. Requiring
  *      that last condition is what stopped this rule stripping "John" from "John Smith" on every
  *      sentence-initial mention once "Smith" was independently established.
+ *   4. clitic    — "Name's Brack", "It's Brack": a leading contraction is a copula frame, not a
+ *      name's interior. "Baldur's Gate" survives because it opens spans mid-sentence too.
+ *      Trimming here rather than in `trimLeadingStopwords` is what clears `atSentenceStart`,
+ *      so the survivor still passes the positional gate.
  */
 function trimSpan(span, lexis, local) {
   let words = span.words
@@ -126,6 +132,11 @@ function trimSpan(span, lexis, local) {
   } else if (atSentenceStart && words.length > 1
     && !attestedHead(words[0].text) && attestedHead(words[1].text)
     && isOrdinaryWord(lexis, words[0].text)) {
+    words = words.slice(1)
+    atSentenceStart = false
+  } else if (atSentenceStart && words.length > 1
+    && CLITIC.test(words[0].text) && !isStrongHead(lexis, words[0].text)
+    && !isHeadNoun(words[words.length - 1].text)) {
     words = words.slice(1)
     atSentenceStart = false
   }
